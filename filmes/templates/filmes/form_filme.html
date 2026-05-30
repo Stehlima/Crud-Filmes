@@ -1,0 +1,173 @@
+{% extends 'filmes/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg border-0 mb-5">
+            <div class="card-header bg-transparent border-bottom border-secondary pt-4 pb-3">
+                <h3 class="mb-0 fw-bold"><i class="fa-solid fa-film text-info"></i> {{ acao }} Filme</h3>
+            </div>
+            <div class="card-body p-4">
+                
+                {% if acao == 'Adicionar' %}
+                <!-- Área de Busca de API -->
+                <div class="bg-dark p-3 rounded mb-4 border border-secondary">
+                    <h5 class="text-info mb-3"><i class="fa-solid fa-magnifying-glass"></i> Buscar Filme Automaticamente</h5>
+                    <div class="input-group mb-3">
+                        <input type="text" id="apiSearchInput" class="form-control bg-dark text-light border-secondary" placeholder="Digite o nome original do filme...">
+                        <button class="btn btn-outline-info" type="button" id="btnSearchApi">Buscar na API</button>
+                    </div>
+                    <div id="apiResults" class="d-none">
+                        <!-- Resultados aparecerão aqui -->
+                        <div class="d-flex align-items-center mb-2 p-2 border border-secondary rounded api-item" style="cursor: pointer;">
+                            <img id="apiImg" src="" alt="" width="50" class="me-3 rounded">
+                            <div>
+                                <h6 id="apiTitle" class="mb-0"></h6>
+                                <small id="apiYear" class="text-muted"></small>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="apiLoading" class="d-none text-center text-muted">Buscando...</div>
+                    <div id="apiError" class="d-none text-danger small mt-2"></div>
+                </div>
+                <hr class="border-secondary mb-4">
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label text-muted">{{ form.titulo.label }}</label>
+                            {{ form.titulo }}
+                            {% if form.titulo.errors %}<div class="text-danger small">{{ form.titulo.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <label class="form-label text-muted">{{ form.diretor.label }}</label>
+                            {{ form.diretor }}
+                            {% if form.diretor.errors %}<div class="text-danger small">{{ form.diretor.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">{{ form.ano_lancamento.label }}</label>
+                            {{ form.ano_lancamento }}
+                            {% if form.ano_lancamento.errors %}<div class="text-danger small">{{ form.ano_lancamento.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">{{ form.categoria.label }} (Existente)</label>
+                            {{ form.categoria }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Nova Categoria</label>
+                            {{ form.nova_categoria }}
+                            <div class="form-text text-secondary">{{ form.nova_categoria.help_text }}</div>
+                        </div>
+                        {% if form.errors.categoria %}
+                        <div class="text-danger small mt-1">{{ form.errors.categoria }}</div>
+                        {% endif %}
+                        {% if form.non_field_errors %}
+                        <div class="text-danger small mt-1">{{ form.non_field_errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <label class="form-label text-muted">Capa (Upload de arquivo)</label>
+                            {{ form.capa }}
+                            <div class="form-text text-secondary">Faça upload da imagem ou preencha a URL automática abaixo.</div>
+                            
+                            <label class="form-label text-muted mt-2">URL da Capa (Preenchido pela API)</label>
+                            {{ form.capa_url }}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'listar_filmes' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-4">Salvar Filme</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const btnSearch = document.getElementById('btnSearchApi');
+        const inputSearch = document.getElementById('apiSearchInput');
+        
+        if (btnSearch) {
+            btnSearch.addEventListener('click', function() {
+                const query = inputSearch.value.trim();
+                if(!query) return;
+
+                const apiKey = 'b5182155'; // OMDB Test API Key (pode precisar de atualização)
+                const url = `https://www.omdbapi.com/?t=${encodeURIComponent(query)}&apikey=${apiKey}`;
+
+                document.getElementById('apiLoading').classList.remove('d-none');
+                document.getElementById('apiResults').classList.add('d-none');
+                document.getElementById('apiError').classList.add('d-none');
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('apiLoading').classList.add('d-none');
+                        if (data.Response === "True") {
+                            document.getElementById('apiResults').classList.remove('d-none');
+                            document.getElementById('apiTitle').textContent = data.Title;
+                            document.getElementById('apiYear').textContent = data.Year;
+                            document.getElementById('apiImg').src = data.Poster !== "N/A" ? data.Poster : "";
+
+                            // Clique no resultado para preencher o form
+                            document.querySelector('.api-item').onclick = function() {
+                                document.getElementById('id_titulo').value = data.Title;
+                                document.getElementById('id_diretor').value = data.Director;
+                                document.getElementById('id_ano_lancamento').value = parseInt(data.Year) || 2024;
+                                document.getElementById('id_capa_url').value = data.Poster !== "N/A" ? data.Poster : "";
+                                
+                                // Tentar preencher a categoria automaticamente
+                                if(data.Genre) {
+                                    const firstGenre = data.Genre.split(',')[0].trim();
+                                    const inputNovaCategoria = document.querySelector('input[name="nova_categoria"]');
+                                    if(inputNovaCategoria) {
+                                        inputNovaCategoria.value = firstGenre;
+                                    }
+                                }
+                            };
+                        } else {
+                            document.getElementById('apiError').textContent = "Filme não encontrado na API.";
+                            document.getElementById('apiError').classList.remove('d-none');
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('apiLoading').classList.add('d-none');
+                        document.getElementById('apiError').textContent = "Erro ao conectar com a API.";
+                        document.getElementById('apiError').classList.remove('d-none');
+                    });
+            });
+        }
+
+        // Estilizar classes para campos
+        const inputs = document.querySelectorAll('input[type="text"], input[type="number"], input[type="url"], input[type="file"], select');
+        inputs.forEach(input => {
+            if(!input.classList.contains('form-control') && !input.classList.contains('form-select')) {
+                if(input.tagName === 'SELECT') {
+                    input.classList.add('form-select', 'bg-dark', 'text-light', 'border-secondary');
+                } else {
+                    input.classList.add('form-control', 'bg-dark', 'text-light', 'border-secondary');
+                }
+            } else {
+                input.classList.add('bg-dark', 'text-light', 'border-secondary');
+            }
+        });
+    });
+</script>
+{% endblock %}

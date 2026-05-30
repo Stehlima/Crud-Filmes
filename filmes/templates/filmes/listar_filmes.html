@@ -1,0 +1,56 @@
+{% extends 'filmes/base.html' %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-12 text-center">
+        <h1 class="display-4 fw-bold" style="background: linear-gradient(90deg, #f8fafc, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Sua Coleção</h1>
+        <p class="lead text-muted">Explore seus filmes favoritos organizados por categoria.</p>
+    </div>
+</div>
+
+{% if not categorias %}
+<div class="text-center mt-5">
+    <i class="fa-solid fa-film fa-4x text-muted mb-3"></i>
+    <h3 class="text-muted">Nenhum filme cadastrado ainda.</h3>
+    <a href="{% url 'adicionar_filme' %}" class="btn btn-primary mt-3">Adicionar o Primeiro Filme</a>
+</div>
+{% endif %}
+
+{% for categoria in categorias %}
+    {% if categoria.filmes.all %}
+    <div class="mb-5">
+        <h3 class="border-bottom border-secondary pb-2 mb-4">
+            <i class="fa-solid fa-clapperboard text-info"></i> {{ categoria.nome }}
+            <span class="badge bg-secondary rounded-pill fs-6 float-end">{{ categoria.filmes.count }}</span>
+        </h3>
+        
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+            {% for filme in categoria.filmes.all %}
+            <div class="col">
+                <div class="card h-100 overflow-hidden border-0 bg-dark shadow">
+                    {% if filme.capa %}
+                        <img src="{{ filme.capa.url }}" class="card-img-top" alt="{{ filme.titulo }}" style="height: 350px; object-fit: cover;">
+                    {% elif filme.capa_url %}
+                        <img src="{{ filme.capa_url }}" class="card-img-top" alt="{{ filme.titulo }}" style="height: 350px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top d-flex align-items-center justify-content-center bg-secondary" style="height: 350px;">
+                            <i class="fa-solid fa-image fa-3x text-dark"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold text-light text-truncate" title="{{ filme.titulo }}">{{ filme.titulo }}</h5>
+                        <p class="card-text text-muted mb-1"><i class="fa-solid fa-user-tie"></i> {{ filme.diretor }}</p>
+                        <p class="card-text text-muted"><i class="fa-regular fa-calendar"></i> {{ filme.ano_lancamento }}</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top border-secondary d-flex justify-content-between">
+                        <a href="{% url 'editar_filme' filme.pk %}" class="btn btn-sm btn-outline-info"><i class="fa-solid fa-pen"></i> Editar</a>
+                        <a href="{% url 'remover_filme' filme.pk %}" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i> Remover</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+{% endfor %}
+{% endblock %}

@@ -10,14 +10,14 @@ Bem-vindo ao projeto **CineCRUD**! Este é um sistema web desenvolvido em Django
 
 ## 🔗 Links
 
-- **Repositório GitHub:** [https://github.com/stehl/Crud-Filmes](https://github.com/stehl/Crud-Filmes)
+- **Repositório GitHub:** [https://github.com/Stehlima/Crud-Filmes](https://github.com/Stehlima/Crud-Filmes)
 - **Link Local para Testar:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/) *(É necessário rodar o servidor localmente)*
 
 ## 🚀 Como Executar o Projeto Localmente
 
 1. **Clone o repositório:**
    ```bash
-   git clone https://github.com/stehl/Crud-Filmes.git
+   git clone https://github.com/Stehlima/Crud-Filmes.git
    cd Crud-Filmes
    ```
 

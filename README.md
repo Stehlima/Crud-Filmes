@@ -11,7 +11,7 @@ Bem-vindo ao projeto **CineCRUD**! Este é um sistema web desenvolvido em Django
 ## 🔗 Links
 
 - **Repositório GitHub:** [https://github.com/Stehlima/Crud-Filmes](https://github.com/Stehlima/Crud-Filmes)
-- **Acessar o Projeto Online:** *(Em breve / Insira seu link de hospedagem aqui)*
+- **Acessar o Projeto Online:** [https://crud-filmes-i9bs.onrender.com](https://crud-filmes-i9bs.onrender.com)
 
 ---
 > &copy; 2026 Direitos Autorais - **Stephany Lima de Matto**. Todos os direitos reservados.
